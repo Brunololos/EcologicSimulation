@@ -51,6 +51,7 @@ class Welt {
   }
 
   void regenerate() {
+    B = new Biomes();
     noiseDetail(nL,falloff);
     Welt = new int[Aw][Aw];
     heightMap = new int[Aw][Aw];

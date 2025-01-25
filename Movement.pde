@@ -123,7 +123,6 @@ static class Movement {
       move = PVector.fromAngle(radians((T.rot+90)%360)).setMag(move_amt*T.G.frontal_speed*quadrupedal_terrain[terrain_type-1]*0.05);
       T.vel.x = move.x;
       T.vel.y = move.y;
-
     }
 
     // Hungern

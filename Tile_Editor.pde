@@ -22,8 +22,12 @@ class Tile_Editor extends Screen {
           if(((Tile) ui_e).empty) { continue; }
           biomes.add(((Tile) ui_e).toBiome());
         }
-        I.P.W.B.set(biomes);
-        println(I.P.W.B.count());
+        for (Biome B : biomes)
+        {
+          println(B.toString());
+        }
+        writeBiomes(biomes);
+        I.O.WV.regenerate();
         I.screen = 2;
       }
     });
@@ -34,7 +38,6 @@ class Tile_Editor extends Screen {
         // TODO: forbid removing the last section (hide when #sections == 1 and display if #section > 1)
         tile_interval_selector.remove_section(tiles.selected_index);
         tiles.remove_selected();
-        println(tiles.list.components.size());
         if(tiles.list.components.size() == 2) {
           remove_button.setActive(false);
           remove_button.setVisible(false);
@@ -116,26 +119,16 @@ class Tile_Editor extends Screen {
     };
     /* Initialize Tile List */
     colorMode(HSB);
-    // TODO: Write Config file parser
-    /*ArrayList<Biome> biomes = BiomeSettings.getStandardBiomes();*/  // TODO: create file reader instead
-/*     tiles.add(color(154, 186, 244), 0, biomes.get(0).upperElevationBorder, biomes.get(0));
-    tiles.add(color(154, 131, 255), 400, 450, I.P.W.B.get(1));
-    tiles.add(color(39, 169, 239), 450, 500, I.P.W.B.get(2));
-    tiles.add(color(64, 189, 232-15), 500, 625, I.P.W.B.get(3));
-    tiles.add(color(85, 193, 139-25), 625, 725, I.P.W.B.get(4));
-    tiles.add(color(52, 15, 221), 725, 765, I.P.W.B.get(5));
-    tiles.add(color(0, 0, 128), 765, 825, I.P.W.B.get(6));
-    tiles.add(color(0, 0, 255), 825, 1000, I.P.W.B.get(7)); */
-    //selected = new Tile(width/2, height/2, color(0, 0, 255), 825, 1000, biomes.get(7));
-    tiles.add(color(154, 186, 244), 0, 400, new Biome(color(154, 186, 244), 400, 0, 1, 1));
-    tiles.add(color(154, 131, 255), 400, 450, new Biome(color(154, 131, 255), 450, 0, 5, 5));
-    tiles.add(color(39, 169, 239), 450, 500, new Biome(color(39, 169, 239), 500, 0, 10, 10));
-    tiles.add(color(64, 189, 232-15), 500, 625, new Biome(color(64, 189, 232-15), 625, 0.25, 30, 20));
-    tiles.add(color(85, 193, 139-25), 625, 725, new Biome(color(85, 193, 139-25), 725, 0.5, 50, 25));
-    tiles.add(color(52, 15, 221), 725, 765, new Biome(color(52, 15, 221), 765, 0, 5, 5));
-    tiles.add(color(0, 0, 128), 765, 825, new Biome(color(0, 0, 128), 825, 0, 3, 3));
-    tiles.add(color(0, 0, 255), 825, 1000, new Biome(color(0, 0, 255), 1000, 0, 2, 2));
-    selected = new Tile(width/2, height/2, color(0, 0, 255), 825, 1000, new Biome(color(0, 0, 255), 1000, 0, 2, 2));
+    ArrayList<Biome> biomes = getBiomes();
+    float minHeight = 0.0;
+    for (Biome B : biomes)
+    {
+      tiles.add(B.c, minHeight, B.upperElevationBorder, B);
+      minHeight = B.upperElevationBorder;
+    }
+    Biome Bl = biomes.get(biomes.size() - 1);
+    Biome Bpl = biomes.get(biomes.size() - 2);
+    selected = new Tile(width/2, height/2, Bl.c, Bpl.upperElevationBorder, Bl.upperElevationBorder, Bl);
 
     ui_elements.add(tiles);
   }
@@ -144,24 +137,18 @@ class Tile_Editor extends Screen {
     /* Initialize Tile List */
     colorMode(HSB);
     tiles.clear();
-/*     tiles.add(color(154, 186, 244), 0, 400, 0, 1, 1);
-    tiles.add(color(154, 131, 255), 400, 450, 0, 5, 5);
-    tiles.add(color(39, 169, 239), 450, 500, 0, 10, 10);
-    tiles.add(color(64, 189, 232-15), 500, 625, 0.25, 30, 20);
-    tiles.add(color(85, 193, 139-25), 625, 725, 0.5, 50, 25);
-    tiles.add(color(52, 15, 221), 725, 765, 0, 5, 5);
-    tiles.add(color(0, 0, 128), 765, 825, 0, 3, 3);
-    tiles.add(color(0, 0, 255), 825, 1000, 0, 2, 2); */
-
     tile_interval_selector.clear();
-    tile_interval_selector.add_section(color(154, 186, 244), 0);
-    tile_interval_selector.add_section(color(154, 131, 255), 400);
-    tile_interval_selector.add_section(color(39, 169, 239), 450);
-    tile_interval_selector.add_section(color(64, 189, 232), 500);
-    tile_interval_selector.add_section(color(85, 193, 139), 625);
-    tile_interval_selector.add_section(color(52, 15, 221), 725);
-    tile_interval_selector.add_section(color(0, 0, 128), 765);
-    tile_interval_selector.add_section(color(0, 0, 255), 825);
+    ArrayList<Biome> biomes = getDefaultBiomes();
+    float minHeight = 0.0;
+    for (Biome B : biomes)
+    {
+      tiles.add(B.c, minHeight, B.upperElevationBorder, B);
+      tile_interval_selector.add_section(B.c, minHeight);
+      minHeight = B.upperElevationBorder;
+    }
+    Biome Bl = biomes.get(biomes.size() - 1);
+    Biome Bpl = biomes.get(biomes.size() - 2);
+    selected = new Tile(width/2, height/2, Bl.c, Bpl.upperElevationBorder, Bl.upperElevationBorder, Bl);
   }
 
   void update() {

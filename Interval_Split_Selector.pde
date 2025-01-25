@@ -30,9 +30,8 @@ class Interval_Split_Selector extends UI_Element {
 
   void add_section(color c, float lower_border) {
     // TODO: handle lower_border larger than max
-    println(lower_border);
     if(lower_border % step != 0) { return; }   // border not aligned to stepsize
-    if(borders.size() > 0 && lower_border <= borders.get(borders.size()-1)) { print(lower_border+" smaller than border: "+borders.get(borders.size()-1)+"\n"); return; }   // border too low
+    if(borders.size() > 0 && lower_border <= borders.get(borders.size()-1)) { /* print(lower_border+" smaller than border: "+borders.get(borders.size()-1)+"\n"); */ return; }   // border too low
     colors.append(c);
     borders.add(lower_border);
   }

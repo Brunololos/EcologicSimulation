@@ -13,6 +13,20 @@ class Biome {
         initSatMax = initSatMax_;
     }
 
+    Biome(String biome) {
+        String[] split = biome.split(",");
+
+        colorMode(HSB);
+        int h = Integer.parseInt(split[0]);
+        int s = Integer.parseInt(split[1]);
+        int b = Integer.parseInt(split[2]);
+        c = color(h, s, b);
+        upperElevationBorder = Float.parseFloat(split[3]);
+        averageGrowth = Float.parseFloat(split[4]);
+        maxSat = Integer.parseInt(split[5]);
+        initSatMax = Integer.parseInt(split[6]);
+    }
+
     int calculateInitalSaturation() {
         return round(random(0, initSatMax));
     }
@@ -36,5 +50,17 @@ class Biome {
             // ible we simply always grow.
             return true;
         }
+    }
+
+    String toString() {
+        String biome = "";
+        biome += Integer.toString(round(hue(c))) + ",";
+        biome += Integer.toString(round(saturation(c))) + ",";
+        biome += Integer.toString(round(brightness(c))) + ",";
+        biome += Float.toString(upperElevationBorder) + ",";
+        biome += Float.toString(averageGrowth) + ",";
+        biome += Integer.toString(maxSat) + ",";
+        biome += Integer.toString(initSatMax);
+        return biome;
     }
 }

@@ -10,7 +10,7 @@ class WeltVorschau extends UI_Element {
   float e;                 //Wert des Exponenten
   int nL = 6;              //noiseLayers
   float falloff = 0.5;     //Falloff of strength of noiseLayers
-  int[] t = {400, 450, 500, 625, 725, 765, 825};   //Werte für die Biomübergänge
+  Biomes B = new Biomes();  //Biomes of the world
 
   int xo = 0;              //x-offset for the world generation
   int yo = 0;              //y-offset for the world generation
@@ -33,25 +33,16 @@ class WeltVorschau extends UI_Element {
     int val;
     for(int i=0; i<aw; i++){
       for(int j=0; j<aw; j++){
-        val = round(pow(noise((i+xo)*k*f, (j+yo)*k*f), e)*1000);
+        val = round(pow(constrain(noise((i+xo)*k*f, (j+yo)*k*f), 0, 1), e)*1000);
 
-        if(val < t[0]){                                             //tiefes Wasser
+        if(val <= B.get(0).upperElevationBorder){                                                                 //tiefes Wasser
           Welt[i][j] = 1;
-        } else if(val >= t[0] && val < t[1]) {            //flaches Wasser
-          Welt[i][j] = 2;
-        } else if(val >= t[1] && val < t[2]) {            //Strand
-          Welt[i][j] = 3;
-        } else if(val >= t[2] && val < t[3]) {            //Wiese
-          Welt[i][j] = 4;
-        } else if(val >= t[3] && val < t[4]) {            //Wald
-          Welt[i][j] = 5;
-        } else if(val >= t[4]) {
-          if(val >= t[6]) {                                         //Schnee
-            Welt[i][j] = 8;
-          } else if(val >= t[5]) {                                  //Gebirge - hoch
-            Welt[i][j] = 7;
-          } else if(val >= t[4]) {                                  //Gebirge - tief
-            Welt[i][j] = 6;
+        } else {
+          for(int k=1; k<B.count(); k++){
+            if(val > B.get(k-1).upperElevationBorder && val <= B.get(k).upperElevationBorder) {            //Middle layers
+              Welt[i][j] = k+1;
+              break;
+            }
           }
         }
       }
@@ -61,31 +52,23 @@ class WeltVorschau extends UI_Element {
   }
 
   void regenerate() {
+    B = new Biomes();
     aw = round(Aw/k);
     Welt = new int[aw][aw];
     noiseDetail(nL,falloff);
     int val;
     for(int i=0; i<aw; i++){
       for(int j=0; j<aw; j++){
-        val = round(pow(noise((i+xo)*k*f, (j+yo)*k*f), e)*1000);
+        val = round(pow(constrain(noise((i+xo)*k*f, (j+yo)*k*f), 0, 1), e)*1000);
 
-        if(val < t[0]){                                             //tiefes Wasser
+        if(val <= B.get(0).upperElevationBorder){                                                                 //tiefes Wasser
           Welt[i][j] = 1;
-        } else if(val >= t[0] && val < t[1]) {            //flaches Wasser
-          Welt[i][j] = 2;
-        } else if(val >= t[1] && val < t[2]) {            //Strand
-          Welt[i][j] = 3;
-        } else if(val >= t[2] && val < t[3]) {            //Wiese
-          Welt[i][j] = 4;
-        } else if(val >= t[3] && val < t[4]) {            //Wald
-          Welt[i][j] = 5;
-        } else if(val >= t[4]) {
-          if(val >= t[6]) {                                         //Schnee
-            Welt[i][j] = 8;
-          } else if(val >= t[5]) {                                  //Gebirge - hoch
-            Welt[i][j] = 7;
-          } else if(val >= t[4]) {                                  //Gebirge - tief
-            Welt[i][j] = 6;
+        } else {
+          for(int k=1; k<B.count(); k++){
+            if(val > B.get(k-1).upperElevationBorder && val <= B.get(k).upperElevationBorder) {            //Middle layers
+              Welt[i][j] = k+1;
+              break;
+            }
           }
         }
       }
@@ -99,34 +82,15 @@ class WeltVorschau extends UI_Element {
     rectMode(CENTER);
     rect(x, y, w+20, w+20);
     noStroke();
-    fill(154,186,244);
+    // fill(154,186,244);
+    fill(B.get(0).c);
     rect(x, y, w, w);
     colorMode(HSB);
     rectMode(CORNER);
     for(int i=0; i < aw; i++){              //verbessert Performance weil vieles garnicht erst geI.P.Zeichnet werden muss
       for(int j=0; j < aw; j++){
-          if(Welt[i][j] == 2) {                                    //flaches Wasser
-            fill(154,131,255);
-            rect(x-w/2+i*w/aw, y-w/2+j*w/aw, w/aw, w/aw);
-          } else if(Welt[i][j] == 3) {                                    //Strand
-            fill(39,169,239);
-            rect(x-w/2+i*w/aw, y-w/2+j*w/aw, w/aw, w/aw);
-          } else if(Welt[i][j] == 4) {                                    //Wiese
-            fill(64,189,232);
-            rect(x-w/2+i*w/aw, y-w/2+j*w/aw, w/aw, w/aw);
-          } else if(Welt[i][j] == 5) {                                    //Wald
-            fill(85,193,139);
-            rect(x-w/2+i*w/aw, y-w/2+j*w/aw, w/aw, w/aw);
-          } else if(Welt[i][j] == 6) {                                    //Gebirge - tief
-            fill(52,15,221);
-            rect(x-w/2+i*w/aw, y-w/2+j*w/aw, w/aw, w/aw);
-          } else if(Welt[i][j] == 7) {                                    //Gebirge - hoch
-            fill(0,0,128);
-            rect(x-w/2+i*w/aw, y-w/2+j*w/aw, w/aw, w/aw);
-          } else if(Welt[i][j] == 8) {                                    //Schnee
-            fill(0,0,255);
-            rect(x-w/2+i*w/aw, y-w/2+j*w/aw, w/aw, w/aw);
-          }
+        fill(B.get(Welt[i][j] - 1).c);
+        rect(x-w/2+i*w/aw, y-w/2+j*w/aw, w/aw, w/aw);
       }
     }
 

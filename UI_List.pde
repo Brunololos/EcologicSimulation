@@ -13,7 +13,6 @@ class UI_List extends UI_Element {
     list.add(new Tile(0, 0) {
       @ Override public void function() {
         float lower_bound = list.components.size() > 1 ? ((Tile) list.components.get(list.components.size()-2)).minHeight + 25 /*25 Magic Number*/ : 500;
-        // TODO: print(lower_bound);
         ((Tile) list.components.get(list.components.size()-2)).maxHeight = 900;
         // TODO: Handle insertion with correct lower bound
         ((Tile_Editor) I.screens.get(5)).selected = new Tile(width/2, height/2, color(100, 200, 150), lower_bound, 1000);
