@@ -26,6 +26,11 @@ class Tier_Info {
     pos = new PVector(x, y);
   }
 
+  void deselect() {
+    if(T != null) { T.isSelected = false; }
+    T = null;
+  }
+
   void set_Tier(Tier T_) {
     if(T != null) { T.isSelected = false; }
     T = T_;
@@ -64,7 +69,7 @@ class Tier_Info {
       rect(I.P.TLX0+pos.x, I.P.TLY0+pos.y-420, w*0.75, 10);
       fill(100, 200, 100);
       rectMode(CORNER);
-      rect(I.P.TLX0+pos.x-(w*3/8), I.P.TLY0+pos.y-420-5, constrain(T.health/T.G.healthMax, 0, 1)*w*0.75, 10);
+      rect(I.P.TLX0+pos.x-(w*3/8), I.P.TLY0+pos.y-420-5, constrain(T.health/T.B.healthMax, 0, 1)*w*0.75, 10);
 
       fill(0);
       textSize(10);
@@ -77,7 +82,7 @@ class Tier_Info {
       rect(I.P.TLX0+pos.x, I.P.TLY0+pos.y-400, w*0.75, 30);
       fill(100, 100, 200);
       rectMode(CORNER);
-      rect(I.P.TLX0+pos.x-(w*3/8), I.P.TLY0+pos.y-400-15, constrain(T.hunger/T.G.hungerMax, 0, 1)*w*0.75, 30);
+      rect(I.P.TLX0+pos.x-(w*3/8), I.P.TLY0+pos.y-400-15, constrain(T.hunger/T.B.hungerMax, 0, 1)*w*0.75, 30);
 
       fill(0);
       textSize(20);
@@ -88,7 +93,7 @@ class Tier_Info {
       fill(0);
       textSize(20);
       textAlign(CENTER, CENTER);
-      text("Bewegung: "+locomotion[T.G.movementType], I.P.TLX0+pos.x, I.P.TLY0+pos.y-372);
+      text("Bewegung: "+locomotion[T.B.movementType], I.P.TLX0+pos.x, I.P.TLY0+pos.y-372);
 
       // Draw Age
       fill(0);
@@ -103,8 +108,8 @@ class Tier_Info {
       rectMode(CENTER);
       rect(I.P.TLX0+pos.x, I.P.TLY0+pos.y, w, h, 50, 0, 0, 50);
       // draw perception nodes
-      stroke(T.G.c);
-      fill(T.G.c);
+      stroke(T.B.T.c);
+      fill(T.B.T.c);
       strokeWeight(1);
 
       // drawing nodes in Perception-, first Hidden-layer and their connections
@@ -164,7 +169,7 @@ class Tier_Info {
   private void nodeStyle(float v) {
     noStroke();
     colorMode(HSB);
-    fill(hue(T.G.c), saturation(T.G.c), v*127.5+127.5);
+    fill(hue(T.B.T.c), saturation(T.B.T.c), v*127.5+127.5);
   }
 
   private void weightStyle(float w) {

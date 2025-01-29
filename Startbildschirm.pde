@@ -38,15 +38,4 @@ class Startbildschirm extends Screen {
         element.displayUI();
     }
   }
-
-
-
-
-
-
-
-
-
-
-
 }

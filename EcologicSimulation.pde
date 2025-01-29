@@ -92,6 +92,14 @@ void keyPressed() {
       }
       uncappedFrameRate = !uncappedFrameRate;
     }
+
+    if(key == 'ü'){
+      I.P.TI.deselect();
+    }
+
+    if(key == 'r'){
+      I.P.T.spawn(I.P.Awdec * I.P.Awdec / 5);
+    }
   } else if(I.screen == 1) {
 
   } else if(I.screen == 2) {

@@ -15,7 +15,11 @@ static class Movement {
 
     /* TURN */
     if(mode <= 0) {
-      T.rot = T.rot + turn_amt*T.G.turn_speed*1.0;
+      T.rot = T.rot + turn_amt*T.B.turn_speed*1.0;
+
+      // Hungern TODO: review energy cost
+      float move_energy = abs(turn_amt*(T.B.turn_speed/360.0));
+      T.hunger(0.25 + 1.0 * move_energy * move_energy);
       return;
 
     /* WALK */
@@ -26,15 +30,20 @@ static class Movement {
       // erstelle Bewegungsvector
       PVector move;
       if(move_amt > 0) {
-        move = PVector.fromAngle(radians(T.rot)).setMag(move_amt*T.G.frontal_speed*bipedal_terrain[terrain_type-1]*0.75); //0.75 bipedal movement modifier ?
+        move = PVector.fromAngle(radians(T.rot)).setMag(move_amt*T.B.frontal_speed*bipedal_terrain[terrain_type-1]*0.75); //0.75 bipedal movement modifier ?
       } else {
-        move = PVector.fromAngle(radians(T.rot)).setMag(move_amt*T.G.frontal_speed*bipedal_terrain[terrain_type-1]*0.25*0.75); //0.25 backward move modifier
+        move = PVector.fromAngle(radians(T.rot)).setMag(move_amt*T.B.frontal_speed*bipedal_terrain[terrain_type-1]*0.25*0.75); //0.25 backward move modifier
       }
 
       // Veränderung der Geschwindigkeit
       T.vel.x = move.x;
       T.vel.y = move.y;
-      T.hunger(abs(move_amt*T.G.frontal_speed));
+
+      // Hungern TODO: review energy cost
+      float move_energy = abs(move_amt*T.B.frontal_speed);
+      T.hunger(0.25 + 1.0 * move_energy * move_energy);
+      // T.hunger(0.2 * move_energy * move_energy + 0.5 * move_energy);
+      // T.hunger(0.5 * move_energy);
     }
 
     // Veränderung der Position aufgrund von Bewegung
@@ -59,32 +68,50 @@ static class Movement {
 
     /* ROTATE */
     if(mode0 <= 0 && mode1 <= 0) {
-      T.rot = T.rot + turn_amt*T.G.turn_speed*0.25;
+      T.rot = T.rot + turn_amt*T.B.turn_speed*0.25;
+
+      float move_energy = abs(turn_amt*(T.B.turn_speed/360.0));
+      T.hunger(0.25 + 1.0 * move_energy * move_energy);
 
     /* WALK RIGHT BACK */
     } else if(mode0 <= 0 && mode1 > 0) {
       // erstelle Bewegungsvector
-      move = PVector.fromAngle(radians((T.rot+120)%360)).setMag(move_amt*T.G.frontal_speed*tripedal_terrain[terrain_type-1]*0.5);
+      move = PVector.fromAngle(radians((T.rot+120)%360)).setMag(move_amt*T.B.frontal_speed*tripedal_terrain[terrain_type-1]*0.5);
       T.vel.x = move.x;
       T.vel.y = move.y;
+
+      // Hungern TODO: review energy cost
+      float move_energy = abs(move_amt*T.B.frontal_speed + turn_amt*T.B.turn_speed);
+      T.hunger(0.25 + 1.0 * move_energy * move_energy);
+      // T.hunger(0.2 * move_energy * move_energy + 0.5 * move_energy);
+      // T.hunger(0.5 * move_energy);
 
     /* WALK LEFT BACK */
     } else if(mode0 > 0 && mode1 <= 0) {
       // erstelle Bewegungsvector
-      move = PVector.fromAngle(radians((T.rot+240)%360)).setMag(move_amt*T.G.frontal_speed*tripedal_terrain[terrain_type-1]*0.5);
+      move = PVector.fromAngle(radians((T.rot+240)%360)).setMag(move_amt*T.B.frontal_speed*tripedal_terrain[terrain_type-1]*0.5);
       T.vel.x = move.x;
       T.vel.y = move.y;
+
+      // Hungern TODO: review energy cost
+      float move_energy = abs(move_amt*T.B.frontal_speed + turn_amt*T.B.turn_speed);
+      T.hunger(0.25 + 1.0 * move_energy * move_energy);
+      // T.hunger(0.2 * move_energy * move_energy + 0.5 * move_energy);
+      // T.hunger(0.5 * move_energy);
 
     /* WALK FORWARD */
     } else if(mode0 > 0 && mode1 > 0) {
       // erstelle Bewegungsvector
-      move = PVector.fromAngle(radians(T.rot)).setMag(move_amt*T.G.frontal_speed*tripedal_terrain[terrain_type-1]*0.5);
+      move = PVector.fromAngle(radians(T.rot)).setMag(move_amt*T.B.frontal_speed*tripedal_terrain[terrain_type-1]*0.5);
       T.vel.x = move.x;
       T.vel.y = move.y;
-    }
 
-    // Hungern
-    T.hunger(abs(move_amt*T.G.frontal_speed*0.5));
+      // Hungern TODO: review energy cost
+      float move_energy = abs(move_amt*T.B.frontal_speed + turn_amt*T.B.turn_speed);
+      T.hunger(0.25 + 1.0 * move_energy * move_energy);
+      // T.hunger(0.2 * move_energy * move_energy + 0.5 * move_energy);
+      // T.hunger(0.5 * move_energy);
+    }
 
     // Veränderung der Position aufgrund von Bewegung
     T.pos.x = constrain(T.pos.x + T.vel.x, 0, W.Aw);
@@ -107,26 +134,35 @@ static class Movement {
 
     /* WALK FORWARD */
     if(mode > 0) {
-      T.rot = T.rot + turn_amt*T.G.turn_speed*0.15;
+      T.rot = T.rot + turn_amt*T.B.turn_speed*0.15;
       // erstelle Bewegungsvector
       if(move_amt > 0) {
-        move = PVector.fromAngle(radians((T.rot)%360)).setMag(move_amt*T.G.frontal_speed*quadrupedal_terrain[terrain_type-1]);
+        move = PVector.fromAngle(radians((T.rot)%360)).setMag(move_amt*T.B.frontal_speed*quadrupedal_terrain[terrain_type-1]);
       } else {
-        move = PVector.fromAngle(radians((T.rot)%360)).setMag(move_amt*T.G.frontal_speed*quadrupedal_terrain[terrain_type-1]*0.25);
+        move = PVector.fromAngle(radians((T.rot)%360)).setMag(move_amt*T.B.frontal_speed*quadrupedal_terrain[terrain_type-1]*0.25);
       }
       T.vel.x = move.x;
       T.vel.y = move.y;
 
+      // Hungern TODO: review energy cost
+      float move_energy = abs(move_amt*T.B.frontal_speed + turn_amt*(T.B.turn_speed/360.0));
+      T.hunger(0.25 + 1.0 * move_energy * move_energy);
+      // T.hunger(0.2 * move_energy * move_energy + 0.5 * move_energy);
+      // T.hunger(0.5 * move_energy);
+
     /* WALK SIDEWARD */
     } else {
       // erstelle Bewegungsvector
-      move = PVector.fromAngle(radians((T.rot+90)%360)).setMag(move_amt*T.G.frontal_speed*quadrupedal_terrain[terrain_type-1]*0.05);
+      move = PVector.fromAngle(radians((T.rot+90)%360)).setMag(move_amt*T.B.frontal_speed*quadrupedal_terrain[terrain_type-1]*0.05);
       T.vel.x = move.x;
       T.vel.y = move.y;
-    }
 
-    // Hungern
-    T.hunger(abs(move_amt*T.G.frontal_speed*0.5));
+      // Hungern TODO: review energy cost
+      float move_energy = abs(move_amt*T.B.frontal_speed);
+      T.hunger(0.25 + 1.0 * move_energy * move_energy);
+      // T.hunger(0.2 * move_energy * move_energy + 0.5 * move_energy);
+      // T.hunger(0.5 * move_energy);
+    }
 
     // Veränderung der Position aufgrund von Bewegung
     T.pos.x = constrain(T.pos.x + T.vel.x, 0, W.Aw);

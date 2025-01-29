@@ -1,20 +1,20 @@
 class Genome {
 
   ///////General///////
-  color c;                        //color of creature
-  int bodyType = 0;               // 0: Sphere
-  float size;                     //width of creature
+  // color c;                        //color of creature
+  // int bodyType = 0;               // 0: Sphere
+  // float size;                     //width of creature
 
   ///////Life///////
-  float healthMax;
-  float hungerMax;
-  float hungerLoss = 1;            //how much to hunger by each frame
+  // float healthMax;
+  // float hungerMax;
+  // float hungerLoss = 1;            //how much to hunger by each frame
 
   ///////Movement///////
-  int movementType;  // 0: Static, 1: Bipedal, 2: Tripedal, 3: Quadrupedal, 4: Slithering, 5: Swimming
-  float turn_speed;                //turning speed
-  float frontal_speed;             //forward movement speed
-  float lateral_speed;             //sideward movement speed
+  // int movementType;  // 0: Static, 1: Bipedal, 2: Tripedal, 3: Quadrupedal, 4: Slithering, 5: Swimming
+  // float turn_speed;                //turning speed
+  // float frontal_speed;             //forward movement speed
+  // float lateral_speed;             //sideward movement speed
 
   ///////Cognition///////
   float[] InputWeights;
@@ -30,23 +30,24 @@ class Genome {
   Genome(int numPerceptions_, int numActions_) {
     numPerceptions = numPerceptions_;
     numActions = numActions_;
+    generate();
   }
 
   public void generate() {
     ///////General///////
-    c = color(random(0, 255), random(0, 255), random(0, 255));
-    size = random(0.25, 0.75);
+    // c = color(random(0, 255), random(0, 255), random(0, 255));
+    // size = random(0.25, 0.75);
 
     ///////Life///////
-    healthMax = floor(random(10, 100));
-    hungerMax = floor(random(20, 100));
-    hungerLoss = floor(random(1, 5));    //how much to hunger by each frame
+    // healthMax = floor(random(10, 100));
+    // hungerMax = floor(random(20, 100));
+    // hungerLoss = floor(random(1, 5));    //how much to hunger by each frame
 
     ///////Movement///////
-    movementType = floor(random(0, 4.9));
-    turn_speed = random(15.0, 30.0/* 0.01, 1 */);       //turning speed
-    frontal_speed = random(0.01, 1);    //forward movement speed
-    lateral_speed = random(0.01, 1);    //sideward movement speed
+    // movementType = floor(random(0, 4.9));
+    // turn_speed = random(15.0, 30.0/* 0.01, 1 */);       //turning speed
+    // frontal_speed = random(0.01, 1);    //forward movement speed
+    // lateral_speed = random(0.01, 1);    //sideward movement speed
 
     ///////Cognition///////
     numHidden1 = ceil(random(2, 5));
@@ -65,19 +66,19 @@ class Genome {
     Genome G = new Genome(numPerceptions, numActions);
 
     ///////General///////
-    G.c = color(red(c) + random(-10, 10), green(c) + random(-10, 10), blue(c) + random(-10, 10));
-    G.size = constrain(size + random(-0.05, 0.05), 0.25, 0.75);
+    // G.c = color(red(c) + random(-10, 10), green(c) + random(-10, 10), blue(c) + random(-10, 10));
+    // G.size = constrain(size + random(-0.05, 0.05), 0.25, 0.75);
 
     ///////Life///////
-    G.healthMax = constrain(healthMax + random(-5, 5), 10, 100);
-    G.hungerMax = constrain(hungerMax + random(-5, 5), 10, 100);
-    G.hungerLoss = constrain(hungerLoss + random(-0.05, 0.05), 1, 5);    //how much to hunger by each frame
+    // G.healthMax = constrain(healthMax + random(-5, 5), 10, 100);
+    // G.hungerMax = constrain(hungerMax + random(-5, 5), 10, 100);
+    // G.hungerLoss = constrain(hungerLoss + random(-0.05, 0.05), 1, 5);    //how much to hunger by each frame
 
     ///////Movement///////
-    G.movementType = (random(0, 1) >= 0.1) ? movementType : floor(random(0, 4.9));
-    G.turn_speed = constrain(turn_speed + random(-0.05, 0.05), 15.0, 30.0/* 0.25, 1.5 */);        //turning speed
-    G.frontal_speed = constrain(frontal_speed + random(-0.05, 0.05), 0.01, 1);    //forward movement speed
-    G.lateral_speed = constrain(lateral_speed + random(-0.05, 0.05), 0.01, 1);    //sideward movement speed
+    // G.movementType = (random(0, 1) >= 0.1) ? movementType : floor(random(0, 4.9));
+    // G.turn_speed = constrain(turn_speed + random(-0.05, 0.05), 15.0, 30.0/* 0.25, 1.5 */);        //turning speed
+    // G.frontal_speed = constrain(frontal_speed + random(-0.05, 0.05), 0.01, 1);    //forward movement speed
+    // G.lateral_speed = constrain(lateral_speed + random(-0.05, 0.05), 0.01, 1);    //sideward movement speed
 
     ///////Cognition///////
     G.numHidden1 = constrain(numHidden1 + int(random(-2,2)), 1, 10);

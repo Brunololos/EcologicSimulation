@@ -11,10 +11,16 @@ class Tiere {
     }
   }
 
+  void spawn(int Anz) {
+    for(int i=0; i<Anz; i++) {
+      tiere.add(new Tier(new PVector(random(0,I.P.Awdec),random(0,I.P.Awdec))));
+    }
+  }
+
   void select(float x, float y) {
     for(int i=1; i<=tiere.size(); i++) {
       Tier T = tiere.get(tiere.size()-i);
-      if(abs(T.pos.x*I.P.Z - (x + I.P.TLX0)) <= T.G.size*I.P.Z/2 && abs(T.pos.y*I.P.Z - (y + I.P.TLY0)) <= T.G.size*I.P.Z/2) {
+      if(abs(T.pos.x*I.P.Z - (x + I.P.TLX0)) <= T.B.T.size*I.P.Z/2 && abs(T.pos.y*I.P.Z - (y + I.P.TLY0)) <= T.B.T.size*I.P.Z/2) {
         I.P.TI.set_Tier(T);
         return;
       }
@@ -27,7 +33,7 @@ class Tiere {
         T.perceive();
         T.think();
         T.act();
-        if(frameCount % 30 == 0) { T.hunger(); }
+        if(frameCount % 30 == 0) { T.heal(); T.hunger(); }
         T.display();
       }
       for(int i=tiere.size()-1;i>=0; i--){

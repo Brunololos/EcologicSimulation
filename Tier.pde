@@ -1,5 +1,6 @@
 class Tier {
   Genome G;
+  Tier_Body B;
 
   ///////General///////
   String name;
@@ -29,33 +30,34 @@ class Tier {
   long lastBirthed = 0;
 
   ///////Modifiers///////
-  float[] turn = {0, 1, 0.75, 0.5, 0.25};
-  float[] frontal_speed = {0, 0.75, 0.375, 1, 0.25};
-  float[] lateral_speed = {0, 0.125, 0.375, 0.05, 0};
+  // float[] turn = {0, 1, 0.75, 0.5, 0.25};
+  // float[] frontal_speed = {0, 0.75, 0.375, 1, 0.25};
+  // float[] lateral_speed = {0, 0.125, 0.375, 0.05, 0};
 
   ///////Miscellaneous///////
   boolean isSelected = false;
 
   Tier(PVector pos_) {
     G = new Genome(Perception.length, Action.length);
-    G.generate();
+    B = new Tier_Body();
     name = Name_Generator.generate();
     birthday = (I != null && I.P != null) ? I.P.date : 1;
-    health = G.healthMax;
-    hunger = floor(G.hungerMax*0.25);
+    health = B.healthMax;
+    hunger = floor(B.hungerMax*0.25);
     pos = pos_;
     vel = new PVector(0, 0);
     acc = new PVector(0, 0);
-    rot = random(0,360);
+    rot = random(0, 360);
     Perception[6] = 1;
   }
 
-  Tier(PVector pos_, Genome genome) {
+  Tier(PVector pos_, Genome genome, Tier_Body body) {
     G = genome;
+    B = body;
     name = Name_Generator.generate();
     birthday = I.P.date;
-    health = G.healthMax;
-    hunger = floor(G.hungerMax*0.25);
+    health = B.healthMax;
+    hunger = floor(B.hungerMax*0.25);
     pos = pos_;
     vel = new PVector(0, 0);
     acc = new PVector(0, 0);
@@ -67,8 +69,8 @@ class Tier {
     Perception[0] = (I.P.W.heightMap[constrain(floor(pos.x), 0,I.P.W.Aw-1)][constrain(floor(pos.y), 0,I.P.W.Aw-1)]-400)/425.0;
     Perception[1] = (I.P.W.heightMap[constrain(floor(pos.x+cos(radians(rot+30))*2), 0,I.P.W.Aw-1)][constrain(floor(pos.y+sin(radians(rot+30))*2), 0,I.P.W.Aw-1)]-400)/425.0;
     Perception[2] = (I.P.W.heightMap[constrain(floor(pos.x+cos(radians(rot-30))*2), 0,I.P.W.Aw-1)][constrain(floor(pos.y+sin(radians(rot-30))*2), 0,I.P.W.Aw-1)]-400)/425.0;
-    Perception[3] = health/G.healthMax;
-    Perception[4] = hunger/G.hungerMax;
+    Perception[3] = health/B.healthMax;
+    Perception[4] = hunger/B.hungerMax;
     Perception[5] = (sin((I.P.date-birthday)*G.rhythm_factor)+1)/2;
     // Perception[6] = 1; // Constant input node doesnt need to get reset, since it doesnt change
   }
@@ -98,7 +100,7 @@ class Tier {
   }
 
   void move() {
-    switch(G.movementType) {
+    switch(B.movementType) {
       case 1:
         Movement.bipedal(this, I.P.W);
         break;
@@ -114,11 +116,11 @@ class Tier {
   }
 
   void birth() {
-    if(hunger >= floor(G.hungerMax*0.5) && Action[4] > 0 && I.P.date - lastBirthed >= 300) {  //TODO: magic number (time since last birth, birthingcost)
+    if(hunger >= floor(B.hungerMax*0.5) && Action[4] > 0 && I.P.date - lastBirthed >= 300) {  //TODO: magic number (time since last birth, birthingcost)
       float xo = random(-0.5, 0.5);
       float yo = random(-0.5, 0.5);
-      I.P.T.tiere.add(new Tier(new PVector(pos.x + xo, pos.y + yo), G.replicate()));
-      hunger -= floor(G.hungerMax*0.5);
+      I.P.T.tiere.add(new Tier(new PVector(pos.x + xo, pos.y + yo), G.replicate(), B.replicate()));
+      hunger -= floor(B.hungerMax*0.5);
       lastBirthed = I.P.date;
     }
   }
@@ -126,13 +128,19 @@ class Tier {
   void eat() {
     if(Action[3] <= 0) { return; }
     PVector tile = I.P.W.getTile(pos.x, pos.y);
-    if(I.P.W.Welt[int(tile.x)][int(tile.y)] <= 3 || I.P.W.Welt[int(tile.x)][int(tile.y)] >= 6) { return; } //keine Nahrung im Wasser, Strand und Gebirgen
+    if(I.P.W.Welt[int(tile.x)][int(tile.y)] <= 3 || I.P.W.Welt[int(tile.x)][int(tile.y)] >= 6) { hunger = max(hunger - 0.25, 0); return; } //keine Nahrung im Wasser, Strand und Gebirgen //TODO: later change small penalty for trying to eat, when not possible
     int amt = I.P.W.remsat(int(tile.x), int(tile.y), ceil(Action[3]*5));
-    hunger = min(hunger+amt, G.hungerMax);
+    hunger = min(hunger+amt, B.hungerMax);
+  }
+
+  void heal() {   //Vitalitätsregeneration
+    if(hunger == B.hungerMax) {
+      health += 1.0;
+    }
   }
 
   void hunger() {   //Hungern und Vitalitätsverringerung
-    hunger -= G.hungerLoss;
+    hunger -= B.upkeep;
     if(hunger <= 0){
       health += hunger - 1;
       if(health <= 0){
@@ -161,26 +169,8 @@ class Tier {
     }
   }
 
-  void display(){
-    colorMode(RGB);
-    if(debug){
-      stroke(255,0,0);
-      strokeWeight(0.0625*I.P.Z);
-      line(pos.x*I.P.Z,pos.y*I.P.Z,pos.x*I.P.Z+cos(radians(rot))*2*I.P.Z,pos.y*I.P.Z+sin(radians(rot))*2*I.P.Z);
-      stroke(0);
-      line(pos.x*I.P.Z,pos.y*I.P.Z,pos.x*I.P.Z+cos(radians(rot+30))*2*I.P.Z,pos.y*I.P.Z+sin(radians(rot+30))*2*I.P.Z);
-      line(pos.x*I.P.Z,pos.y*I.P.Z,pos.x*I.P.Z+cos(radians(rot-30))*2*I.P.Z,pos.y*I.P.Z+sin(radians(rot-30))*2*I.P.Z);
-
-      if(isSelected) {
-        strokeWeight(1);
-        stroke(0);
-        fill(0, 0);
-        ellipse(pos.x*I.P.Z,pos.y*I.P.Z,I.P.Z*4,I.P.Z*4);
-      }
-    }
-    noStroke();
-    fill(G.c);
-    ellipse(pos.x*I.P.Z,pos.y*I.P.Z,G.size*I.P.Z,G.size*I.P.Z);
+  void display() {
+    B.display(pos, rot, isSelected);
   }
 
   // Node activation function

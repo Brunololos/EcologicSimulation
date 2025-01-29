@@ -24,7 +24,7 @@ class Programm extends Screen {
     super();
 
     W = new Welt(Awdec, fdec, edec, nLdec, falloffdec);
-    T = new Tiere(Awdec * Awdec / 10, Awdec);
+    T = new Tiere(Awdec * Awdec / 5, Awdec);
     TI = new Tier_Info(width-190, 750);   //Old width-190, 500
     Z = ceil(float(width)/float(W.Aw));        //Zoomwert     //Grösse der Darstellung
     TLX = width/2;                            //Werte der Verschiebung         //Geben Bildschirmmitte an
