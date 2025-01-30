@@ -27,23 +27,25 @@ class Tiere {
     }
   }
 
+  void update() {
+    for(Tier T : tiere) {
+      T.perceive();
+      T.think();
+      T.act();
+      if(frameCount % 30 == 0) { T.heal(); T.hunger(); }
+    }
+  }
+
   void display() {
-    if(!pause) {
-      for(Tier T : tiere) {
-        T.perceive();
-        T.think();
-        T.act();
-        if(frameCount % 30 == 0) { T.heal(); T.hunger(); }
-        T.display();
-      }
-      for(int i=tiere.size()-1;i>=0; i--){
-        tiere.get(i).die(i);
-      }
-      for(int i=tiere.size()-1;i>=0; i--){
-        tiere.get(i).birth();
-      }
-    } else {
-      for(Tier T : tiere) { T.display(); }
+    for(Tier T : tiere) { T.display(); }
+  }
+
+  void cleanup() {
+    for(int i=tiere.size()-1;i>=0; i--){
+      tiere.get(i).die(i);
+    }
+    for(int i=tiere.size()-1;i>=0; i--){
+      tiere.get(i).birth();
     }
   }
 }

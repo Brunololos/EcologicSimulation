@@ -1,6 +1,7 @@
 Interface I;
 boolean debug = false;
 boolean pause = false;
+boolean render = true;
 boolean uncappedFrameRate = false;
 
 char last_key = 'µ';
@@ -95,6 +96,10 @@ void keyPressed() {
 
     if(key == 'ü'){
       I.P.TI.deselect();
+    }
+
+    if(key == '´'){
+      render = !render;
     }
 
     if(key == 'r'){

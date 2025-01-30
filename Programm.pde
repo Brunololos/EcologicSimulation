@@ -60,8 +60,12 @@ class Programm extends Screen {
   }
 
   void display() {
-    W.display();
-    T.display();
+
+    // TODO: this decoupling of render, pause could be done cleaner
+    if(render) { W.display(); }
+    if(!pause) { T.update(); }
+    if(render) { T.display(); }
+    if(!pause) { T.cleanup(); }
 
     stroke(0);
     strokeWeight(1);
