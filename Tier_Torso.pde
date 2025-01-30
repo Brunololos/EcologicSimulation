@@ -42,7 +42,7 @@ class Tier_Torso {
 
     void display(PVector pos, float rot, boolean isSelected) {
         colorMode(RGB);
-        if(debug && !dontShowDebug) {
+        if(debug) {
             stroke(255,0,0);
             strokeWeight(0.0625*I.P.Z);
             line(pos.x*I.P.Z,pos.y*I.P.Z,pos.x*I.P.Z+cos(radians(rot))*2*I.P.Z,pos.y*I.P.Z+sin(radians(rot))*2*I.P.Z);
