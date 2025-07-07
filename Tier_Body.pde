@@ -1,4 +1,5 @@
 class Tier_Body {
+    IntDict num_organs; // number of each organ type
     float healthMax;    // maximum health
     float hungerMax;    // maximum hunger
     float upkeep;       // passive hunger upkeep each day
@@ -14,6 +15,7 @@ class Tier_Body {
 
     Tier_Body() {
         T = new Tier_Torso();
+        num_organs = T.enumerate_organs();
         healthMax = T.calc_healthMax();
         hungerMax = T.calc_hungerMax();
         upkeep = T.calc_upkeep();
@@ -27,6 +29,7 @@ class Tier_Body {
 
     Tier_Body(Tier_Torso T_) {
         T = T_;
+        num_organs = T.enumerate_organs();
         healthMax = T.calc_healthMax();
         hungerMax = T.calc_hungerMax();
         upkeep = T.calc_upkeep();
@@ -47,6 +50,61 @@ class Tier_Body {
 
         return B;
     }
+
+    // public String[] get_perceptions() {
+    //     String[] perceptions = {"StandOn", "WatchR", "WatchL", "Health", "Hunger", "Heartbeat", "Const"};
+    //     // TODO: call recursively on torso
+    //     // Eyes (Watch)
+    //             // Ears (Hear, Height/Pressure?)
+    //             // Nose (Sniff)
+    //     // ! Body & Skin (Health, Velocity)
+    //             // Limbs (Position Proprioception)
+    //             // Heart (Heartbeat)
+    //             // Stomach (Hunger, Metabolism, what can be eaten)
+    //             // Legs (Standon?)
+    //     return perceptions;
+    // }
+
+    // public String[] get_actions() {
+    //     String[] actions = {"Move1", "Move2", "Move3", "Eat", "Birth"};
+    //     // TODO: call recursively on torso
+    //     // Mouths (Eat[From ground, carcasses], food efficiency?)
+    //     // Legs (Frontal/Lateral/Turn Move)
+    //             // Wings
+    //     // Womb (Birth)
+    //     // Horn, Spikes, Claws (Attack)
+    //     // Boneplate (Protection)
+    //     return actions;
+    // }
+    // Add brain as organ (only brained animals can think) [Maybe, maybe not]
+    // Add delay to perceptions scaling with the tree distance of the organs from the brain
+
+    // Each organ needs idx to interact with (Maybe leave key and let it look up when needed)
+    // Organs are not ordered in the tree (They need to be ordered in the idx list)
+    // Idcs need to be accessible by organ name keys
+    // public void build_perceptions(Tier_Cognition C) {
+    //     C.perception_to_idx.set("Const", -1);
+
+    //     // TODO: remove placeholder later with recursion
+    //     C.perception_to_idx.set("Heartbeat", -1);
+    //     C.perception_to_idx.set("Hunger", -1);
+    //     C.perception_to_idx.set("Health", -1);
+    //     C.perception_to_idx.set("WatchL", -1);
+    //     C.perception_to_idx.set("WatchR", -1);
+    //     C.perception_to_idx.set("StandOn", -1);
+    //     C.build_perception_idcs();
+    // }
+
+    // public void build_actions(Tier_Cognition C) {
+
+    //     // TODO: remove placeholder later with recursion
+    //     C.action_to_idx.set("Eat", -1);
+    //     C.action_to_idx.set("Move1", -1);
+    //     C.action_to_idx.set("Move2", -1);
+    //     C.action_to_idx.set("Birth", -1);
+    //     C.action_to_idx.set("Move3", -1);
+    //     C.build_action_idcs();
+    // }
 
     void display(PVector pos, float rot, boolean isSelected) {
         T.display(pos, rot, isSelected);

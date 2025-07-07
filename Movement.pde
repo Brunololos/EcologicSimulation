@@ -6,9 +6,9 @@ static class Movement {
   // move like human
   // int type, PVector pos, PVector vel, int terrain
   public static void bipedal(Tier T, Welt W) {
-    float mode = T.Action[0];
-    float turn_amt = T.Action[1];
-    float move_amt = T.Action[2];
+    float mode = T.C.geta("Leg0_Move0");
+    float turn_amt = T.C.geta("Leg0_Move1");
+    float move_amt = T.C.geta("Leg0_Move2");
 
     T.vel.x *= 0.75;
     T.vel.y *= 0.75;
@@ -54,10 +54,10 @@ static class Movement {
   // move like triped
   // int type, PVector pos, PVector vel, int terrain
   public static void tripedal(Tier T, Welt W) {
-    float mode0 = T.Action[0];
-    float mode1 = T.Action[1];
-    float turn_amt = T.Action[2];
-    float move_amt = constrain(T.Action[2], 0, 1);
+    float mode0 = T.C.geta("Leg0_Move0");
+    float mode1 = T.C.geta("Leg0_Move1");
+    float turn_amt = T.C.geta("Leg0_Move2");
+    float move_amt = constrain(T.C.geta("Leg0_Move2"), 0, 1);
 
     T.vel.x *= 0.75;
     T.vel.y *= 0.75;
@@ -121,9 +121,9 @@ static class Movement {
   // move like horse
   // int type, PVector pos, PVector vel, int terrain (like Horse)
   public static void quadrupedal(Tier T, Welt W) {
-    float mode = T.Action[0];
-    float turn_amt = T.Action[1];
-    float move_amt = T.Action[2];
+    float mode = T.C.geta("Leg0_Move0");
+    float turn_amt = T.C.geta("Leg0_Move1");
+    float move_amt = T.C.geta("Leg0_Move2");
 
     T.vel.x *= 0.85;
     T.vel.y *= 0.85;

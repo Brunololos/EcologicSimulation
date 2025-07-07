@@ -17,19 +17,20 @@ class Genome {
   // float lateral_speed;             //sideward movement speed
 
   ///////Cognition///////
-  float[] InputWeights;
-  float[] Weights1;
-  float[] Weights2;
-  int numPerceptions;
-  int numHidden1;                  //number of nodes in first hidden layer
-  int numHidden2;                  //number of nodes in the second hidden layer
-  int numActions;
+  // float[] InputWeights;
+  // float[] Weights1;
+  // float[] Weights2;
+  // int numPerceptions;
+  // int numHidden1;                  //number of nodes in first hidden layer
+  // int numHidden2;                  //number of nodes in the second hidden layer
+  // int numActions;
 
   float rhythm_factor;
 
-  Genome(int numPerceptions_, int numActions_) {
-    numPerceptions = numPerceptions_;
-    numActions = numActions_;
+  // Genome(int numPerceptions_, int numActions_) {
+  Genome() {
+    // numPerceptions = numPerceptions_;
+    // numActions = numActions_;
     generate();
   }
 
@@ -50,20 +51,21 @@ class Genome {
     // lateral_speed = random(0.01, 1);    //sideward movement speed
 
     ///////Cognition///////
-    numHidden1 = ceil(random(2, 5));
-    numHidden2 = ceil(random(2, 5));
-    InputWeights = new float[numPerceptions*numHidden1];
-    Weights1 = new float[numHidden1*numHidden2];
-    Weights2 = new float[numHidden2*numActions];
-    for(int i=0; i<InputWeights.length; i++) { InputWeights[i] = float(int(random(-1,1)*100))/100; }
-    for(int i=0; i<Weights1.length; i++) { Weights1[i] = float(int(random(-1,1)*100))/100; }                //number of nodes in the first hidden layer
-    for(int i=0; i<Weights2.length; i++) { Weights2[i] = float(int(random(-1,1)*100))/100; }                //number of nodes in the second hidden layer
+    // numHidden1 = ceil(random(2, 5));
+    // numHidden2 = ceil(random(2, 5));
+    // InputWeights = new float[numPerceptions*numHidden1];
+    // Weights1 = new float[numHidden1*numHidden2];
+    // Weights2 = new float[numHidden2*numActions];
+    // for(int i=0; i<InputWeights.length; i++) { InputWeights[i] = float(int(random(-1,1)*100))/100; }
+    // for(int i=0; i<Weights1.length; i++) { Weights1[i] = float(int(random(-1,1)*100))/100; }                //number of nodes in the first hidden layer
+    // for(int i=0; i<Weights2.length; i++) { Weights2[i] = float(int(random(-1,1)*100))/100; }                //number of nodes in the second hidden layer
 
     rhythm_factor = random(0.05, 1);
   }
 
   public Genome replicate() {
-    Genome G = new Genome(numPerceptions, numActions);
+    // Genome G = new Genome(numPerceptions, numActions);
+    Genome G = new Genome();
 
     ///////General///////
     // G.c = color(red(c) + random(-10, 10), green(c) + random(-10, 10), blue(c) + random(-10, 10));
@@ -81,14 +83,14 @@ class Genome {
     // G.lateral_speed = constrain(lateral_speed + random(-0.05, 0.05), 0.01, 1);    //sideward movement speed
 
     ///////Cognition///////
-    G.numHidden1 = constrain(numHidden1 + int(random(-2,2)), 1, 10);
-    G.numHidden2 = constrain(numHidden2 + int(random(-2,2)), 1, 10);
-    G.InputWeights = new float[G.numPerceptions*G.numHidden1];
-    G.Weights1 = new float[G.numHidden1*G.numHidden2];
-    G.Weights2 = new float[G.numHidden2*G.numActions];
-    for(int i=0; i<G.InputWeights.length; i++) { G.InputWeights[i] = constrain(InputWeights[i%InputWeights.length] + float(int(random(-0.1,0.1)*100))/100, -1, 1); }
-    for(int i=0; i<G.Weights1.length; i++) { G.Weights1[i] = constrain(Weights1[i%Weights1.length] + float(int(random(-0.1,0.1)*100))/100, -1, 1); }
-    for(int i=0; i<G.Weights2.length; i++) { G.Weights2[i] = constrain(Weights2[i%Weights2.length] + float(int(random(-0.1,0.1)*100))/100, -1, 1); }
+    // G.numHidden1 = constrain(numHidden1 + int(random(-2,2)), 1, 10);
+    // G.numHidden2 = constrain(numHidden2 + int(random(-2,2)), 1, 10);
+    // G.InputWeights = new float[G.numPerceptions*G.numHidden1];
+    // G.Weights1 = new float[G.numHidden1*G.numHidden2];
+    // G.Weights2 = new float[G.numHidden2*G.numActions];
+    // for(int i=0; i<G.InputWeights.length; i++) { G.InputWeights[i] = constrain(InputWeights[i%InputWeights.length] + float(int(random(-0.1,0.1)*100))/100, -1, 1); }
+    // for(int i=0; i<G.Weights1.length; i++) { G.Weights1[i] = constrain(Weights1[i%Weights1.length] + float(int(random(-0.1,0.1)*100))/100, -1, 1); }
+    // for(int i=0; i<G.Weights2.length; i++) { G.Weights2[i] = constrain(Weights2[i%Weights2.length] + float(int(random(-0.1,0.1)*100))/100, -1, 1); }
 
     G.rhythm_factor = constrain(rhythm_factor + random(-0.05, 0.05), 0.05, 1);
 

@@ -26,6 +26,20 @@ class Tier_Torso {
     }
 
     // TODO: calc recursively for all organs later
+    public IntDict enumerate_organs() {
+        IntDict organs = new IntDict();
+        // TODO: remove placeholder initialization
+        organs.set("Mouth", 1);
+        organs.set("Eye", 2);
+        organs.set("Heart", 1);
+        organs.set("Womb", 1);
+        organs.set("Legs", 1);
+        organs.set("Total", 5);
+        // TODO: set name property of each organ: e.g. Eye0, Eye1, Eye2 if multiple (They can use this key later to get perception/action idcs)
+        return organs;
+    }
+
+    // TODO: calc recursively for all organs later
     public float calc_healthMax() {
         return 100 * size * size;
     }

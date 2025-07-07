@@ -41,7 +41,9 @@ static class MatrixMult {
     float[] M3 = new float[dim1*dim3];
 
     if(M1.length != dim1*dim2 || M2.length != dim2*dim3) {
-      print("Wrong Matrix-dimensions");
+      print("Wrong Matrix-dimensions\n");
+      print("Passed: dim1=", dim1, ", dim2=", dim2, ", dim3=", dim3, "\n");
+      print("With array-lengths: M1.length=", M1.length, ", M2.length=", M2.length,"\n");
       return M3;
     }
 

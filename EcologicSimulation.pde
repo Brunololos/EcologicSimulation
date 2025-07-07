@@ -4,6 +4,8 @@ boolean pause = false;
 boolean render = true;
 boolean uncappedFrameRate = false;
 
+boolean tierinfo_display_activations = true; // true: display activations, false: display weights
+
 char last_key = 'µ';
 
 void setup() {
@@ -92,6 +94,10 @@ void keyPressed() {
         frameRate(200);
       }
       uncappedFrameRate = !uncappedFrameRate;
+    }
+    
+    if(key == 'ä'){
+      tierinfo_display_activations = !tierinfo_display_activations;
     }
 
     if(key == 'ü'){

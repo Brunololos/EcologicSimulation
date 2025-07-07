@@ -5,21 +5,15 @@ class Tier_Info {
   float h = 500;
 
   // number of nodes in layer
-  int layer1;
-  int layer2;
-  int layer3;
-  int layer4;
+  int[] layer_nodes;
 
   // specific layer - node spacing
-  float p_sp;
-  float h1_sp;
-  float h2_sp;
-  float a_sp;
+  float[] layer_sp;
 
   int node_size = 20;
 
-  String[] actions = {"Move1", "Move2", "Move3", "Eat", "Birth"};
-  String[] perceptions = {"StandOn", "WatchR", "WatchL", "Health", "Hunger", "Rhythm", "Const"};
+  String[] actions;
+  String[] perceptions;
   String[] locomotion = {"Reglos", "Zweibeinig", "Dreibeinig", "Vierbeinig", "Schlängelnd"};
 
   Tier_Info(float x, float y) {
@@ -34,16 +28,20 @@ class Tier_Info {
   void set_Tier(Tier T_) {
     if(T != null) { T.isSelected = false; }
     T = T_;
+    actions = T.C.actions;
+    perceptions = T.C.perceptions;
 
-    layer1 = T.Perception.length;
-    layer2 = T.G.numHidden1;
-    layer3 = T.G.numHidden2;
-    layer4 = T.Action.length;
+    // get nodes
+    layer_nodes = new int[T.C.num_hidden_layers+2];
+    layer_nodes[0] = T.C.num_perceptions;
+    for (int i=1; i<T.C.num_hidden_layers+1; i++) {
+      layer_nodes[i] = T.C.hidden_layer_dims[i-1];
+    }
+    layer_nodes[T.C.num_hidden_layers+1] = T.C.num_actions;
 
-    p_sp = 480 / layer1;
-    h1_sp = 480 / layer2;
-    h2_sp = 480 / layer3;
-    a_sp = 480 / layer4;
+    // calculate spacing
+    layer_sp = new float[layer_nodes.length];
+    for (int i=0; i<layer_nodes.length; i++) { layer_sp[i] = (480 / layer_nodes[i]); }
 
     T.isSelected = true;
   }
@@ -107,61 +105,125 @@ class Tier_Info {
       fill(250, 150);
       rectMode(CENTER);
       rect(I.P.TLX0+pos.x, I.P.TLY0+pos.y, w, h, 50, 0, 0, 50);
-      // draw perception nodes
+      // draw perception nodes & connections
       stroke(T.B.T.c);
       fill(T.B.T.c);
       strokeWeight(1);
 
-      // drawing nodes in Perception-, first Hidden-layer and their connections
-      for(int i=0; i<layer1; i++) {
-        nodeStyle(T.Perception[i]);
-        ellipse(I.P.TLX0+pos.x-135, I.P.TLY0+pos.y+(i+0.5-0.5*(layer1%2)-(layer1)/2)*p_sp, node_size, node_size);
+      int nodes; int next_nodes;
+      float sp; float next_sp; float h_sp;
+      if (T.C.num_hidden_layers == 0)
+      {
+        nodes = layer_nodes[0];
+        next_nodes = layer_nodes[1];
+        sp = layer_sp[0];
+        next_sp = layer_sp[1];
+        h_sp = 270 / (T.C.num_hidden_layers+1);
+        for(int i=0; i<nodes; i++) {
+          nodeStyle(T.C.Perception[i]);
+          ellipse(I.P.TLX0+pos.x-135, I.P.TLY0+pos.y+(i+0.5-0.5*(nodes%2)-(nodes)/2)*sp, node_size, node_size);
 
-        fill(0);
-        textSize(12);
-        textAlign(RIGHT, CENTER);
-        text(perceptions[i], I.P.TLX0+pos.x-135-12, I.P.TLY0+pos.y+(i+0.5-0.5*(layer1%2)-(layer1)/2)*p_sp-2);
+          fill(0);
+          textSize(12);
+          textAlign(RIGHT, CENTER);
+          text(T.C.perceptions[i], I.P.TLX0+pos.x-135-12, I.P.TLY0+pos.y+(i+0.5-0.5*(nodes%2)-(nodes)/2)*sp-2);
 
-        for(int j=0; j<layer2; j++) {
-          if(i==0) {
-            nodeStyle(T.Hidden1[j]);
-            ellipse(I.P.TLX0+pos.x-45, I.P.TLY0+pos.y+(j+0.5-0.5*(layer2%2)-(layer2)/2)*h1_sp, node_size, node_size);
+          for(int j=0; j<next_nodes; j++) {
+            if(i==0) {
+              nodeStyle(T.C.Action[j]);
+              ellipse(I.P.TLX0+pos.x-135+h_sp, I.P.TLY0+pos.y+(j+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp, node_size, node_size);
+
+              fill(0);
+              textSize(12);
+              textAlign(LEFT, CENTER);
+              text(T.C.actions[j], I.P.TLX0+pos.x+135+12, I.P.TLY0+pos.y+(j+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp-2);
+            }
+            if(tierinfo_display_activations){ weightStyle(T.C.Perception[i] * T.C.weights.get(0)[j*nodes+i]); }
+            else { weightStyle(T.C.weights.get(0)[j*nodes+i]); }
+            line(I.P.TLX0+pos.x-135, I.P.TLY0+pos.y+(i+0.5-0.5*(nodes%2)-(nodes)/2)*sp,
+            I.P.TLX0+pos.x-135+h_sp, I.P.TLY0+pos.y+(j+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp);
           }
-          weightStyle(T.Perception[i] * T.G.InputWeights[j*layer1+i]);
-          line(I.P.TLX0+pos.x-135, I.P.TLY0+pos.y+(i+0.5-0.5*(layer1%2)-(layer1)/2)*p_sp,
-          I.P.TLX0+pos.x-45, I.P.TLY0+pos.y+(j+0.5-0.5*(layer2%2)-(layer2)/2)*h1_sp);
         }
       }
-      // drawing nodes in second Hidden-layer and their connections
-      for(int j=0; j<layer2; j++) {
-        for(int k=0; k<layer3; k++) {
-          if(j==0) {
-            nodeStyle(T.Hidden2[k]);
-            ellipse(I.P.TLX0+pos.x+45, I.P.TLY0+pos.y+(k+0.5-0.5*(layer3%2)-(layer3)/2)*h2_sp, node_size, node_size);
+      else
+      {
+        nodes = layer_nodes[0];
+        next_nodes = layer_nodes[1];
+        sp = layer_sp[0];
+        next_sp = layer_sp[1];
+        h_sp = 270 / (T.C.num_hidden_layers+1);
+        for(int i=0; i<nodes; i++) {
+          nodeStyle(T.C.Perception[i]);
+          ellipse(I.P.TLX0+pos.x-135, I.P.TLY0+pos.y+(i+0.5-0.5*(nodes%2)-(nodes)/2)*sp, node_size, node_size);
+
+          fill(0);
+          textSize(12);
+          textAlign(RIGHT, CENTER);
+          text(T.C.perceptions[i], I.P.TLX0+pos.x-135-12, I.P.TLY0+pos.y+(i+0.5-0.5*(nodes%2)-(nodes)/2)*sp-2);
+
+          for(int j=0; j<next_nodes; j++) {
+            if(i==0) {
+              nodeStyle(T.C.Hidden.get(0)[j]);
+              ellipse(I.P.TLX0+pos.x-135+h_sp, I.P.TLY0+pos.y+(j+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp, node_size, node_size);
+            }
+            if(tierinfo_display_activations){ weightStyle(T.C.Perception[i] * T.C.weights.get(0)[j*nodes+i]); }
+            else { weightStyle(T.C.weights.get(0)[j*nodes+i]); }
+            line(I.P.TLX0+pos.x-135, I.P.TLY0+pos.y+(i+0.5-0.5*(nodes%2)-(nodes)/2)*sp,
+            I.P.TLX0+pos.x-135+h_sp, I.P.TLY0+pos.y+(j+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp);
           }
-          //weightStyle(T.G.Weights[k+layer3*j]);
-          weightStyle(T.Hidden1[j] * T.G.Weights1[k*layer2+j]);
-          line(I.P.TLX0+pos.x-45, I.P.TLY0+pos.y+(j+0.5-0.5*(layer2%2)-(layer2)/2)*h1_sp,
-          I.P.TLX0+pos.x+45, I.P.TLY0+pos.y+(k+0.5-0.5*(layer3%2)-(layer3)/2)*h2_sp);
+        }
+
+        for (int layer=2; layer<T.C.num_hidden_layers+1; layer++)
+        {
+          nodes = layer_nodes[layer-1];
+          next_nodes = layer_nodes[layer];
+          sp = layer_sp[layer-1];
+          next_sp = layer_sp[layer];
+          for(int j=0; j<nodes; j++) {
+            for(int k=0; k<next_nodes; k++) {
+              if(j==0) {
+                nodeStyle(T.C.Hidden.get(layer-1)[k]);
+                ellipse(I.P.TLX0+pos.x-135+layer*h_sp, I.P.TLY0+pos.y+(k+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp, node_size, node_size);
+              }
+              if(tierinfo_display_activations){ weightStyle(T.C.Hidden.get(layer-2)[j] * T.C.weights.get(layer-1)[k*nodes+j]); }
+              else { weightStyle(T.C.weights.get(layer-1)[k*nodes+j]); }
+              line(I.P.TLX0+pos.x-135+h_sp*(layer-1), I.P.TLY0+pos.y+(j+0.5-0.5*(nodes%2)-(nodes)/2)*sp,
+              I.P.TLX0+pos.x-135+h_sp*layer, I.P.TLY0+pos.y+(k+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp);
+            }
+          }
+        }
+
+        nodes = layer_nodes[layer_nodes.length-2];
+        next_nodes = layer_nodes[layer_nodes.length-1];
+        sp = layer_sp[layer_nodes.length-2];
+        next_sp = layer_sp[layer_nodes.length-1];
+        for(int i=0; i<nodes; i++) {
+          for(int j=0; j<next_nodes; j++) {
+            if(i==0) {
+              nodeStyle(T.C.Action[j]);
+              ellipse(I.P.TLX0+pos.x+135, I.P.TLY0+pos.y+(j+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp, node_size, node_size);
+
+              fill(0);
+              textSize(12);
+              textAlign(LEFT, CENTER);
+              text(T.C.actions[j], I.P.TLX0+pos.x+135+12, I.P.TLY0+pos.y+(j+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp-2);
+            }
+            if(tierinfo_display_activations){ weightStyle(T.C.Hidden.get(T.C.num_hidden_layers-1)[i] * T.C.weights.get(T.C.num_hidden_layers)[j*nodes+i]); }
+            else { weightStyle(T.C.weights.get(T.C.num_hidden_layers)[j*nodes+i]); }
+            line(I.P.TLX0+pos.x+135-h_sp, I.P.TLY0+pos.y+(i+0.5-0.5*(nodes%2)-(nodes)/2)*sp,
+            I.P.TLX0+pos.x+135, I.P.TLY0+pos.y+(j+0.5-0.5*(next_nodes%2)-(next_nodes)/2)*next_sp);
+          }
         }
       }
-      // drawing nodes in Action-layer and their connections
-      for(int j=0; j<layer3; j++) {
-        for(int k=0; k<layer4; k++) {
-          if(j==0) {
-            nodeStyle(T.Action[k]);
-            ellipse(I.P.TLX0+pos.x+135, I.P.TLY0+pos.y+(k+0.5-0.5*(layer4%2)-(layer4)/2)*a_sp, node_size, node_size);
 
-            fill(0);
-            textSize(12);
-            textAlign(LEFT, CENTER);
-            text(actions[k], I.P.TLX0+pos.x+135+12, I.P.TLY0+pos.y+(k+0.5-0.5*(layer4%2)-(layer4)/2)*a_sp-2);
-          }
-          //weightStyle(T.G.Weights[k+layer3*j]);
-          weightStyle(T.Hidden2[j] * T.G.Weights2[k*layer3+j]);
-          line(I.P.TLX0+pos.x+45, I.P.TLY0+pos.y+(j+0.5-0.5*(layer3%2)-(layer3)/2)*h2_sp,
-          I.P.TLX0+pos.x+135, I.P.TLY0+pos.y+(k+0.5-0.5*(layer4%2)-(layer4)/2)*a_sp);
-        }
+      // MLP net edge display mode
+      fill(0);
+      textSize(12);
+      textAlign(CENTER, CENTER);
+      if (tierinfo_display_activations) {
+        text("Display mode: Activations (toggle with ä)", I.P.TLX0+pos.x+12, I.P.TLY0+pos.y+h/2-20);
+      } else {
+        text("Display mode: Edge Weights (toggle with ä)", I.P.TLX0+pos.x+12, I.P.TLY0+pos.y+h/2-20);
       }
     }
   }
@@ -181,5 +243,4 @@ class Tier_Info {
       stroke(200, 100, 100, abs(w)*255);
     }
   }
-
 }
