@@ -3,6 +3,7 @@ class Biome {
     int maxSat = 30;                // Maximum saturation of this biomes tiles
     int initSatMax = 15;            // Upper bound for the initial saturation of one of this biomes tiles
     float averageGrowth = 0.5;      // average monthly saturation growth of one of this biomes tiles
+    float baseSprinkle = 0.1;       // average monthly saturation growth stimulation for this biomes neighbor tiles
     float upperElevationBorder;     // the upper elevation this biome ends at
 
     Biome(int biomeColor_, float upperElevationBorder_, float averageGrowth_, int maxSat_, int initSatMax_) {
@@ -27,12 +28,16 @@ class Biome {
         initSatMax = Integer.parseInt(split[6]);
     }
 
-    int calculateInitalSaturation() {
+    int calculateInitialSaturation() {
         return round(random(0, initSatMax));
     }
 
     int calculateGrowth() {
         return round(random(-1, 2));   // Growth of biome expected value is 0.5
+    }
+
+    int calculateSprinkle() {
+        return round(random(0, 30));   // Sprinkle of biome expected value is 0.5
     }
 
     boolean shouldGrow() {
@@ -43,6 +48,24 @@ class Biome {
             return true;
         } else if(averageGrowth < monthsGrowth) {
             return random(0, 1000) < 1000/(monthsGrowth/averageGrowth);
+        } else {
+            // in any other case we'd need to sample more often,
+            // and cannot achieve the target average Growth by 
+            // growing less. Thus to grow as much as still poss-
+            // ible we simply always grow.
+            return true;
+        }
+    }
+
+    boolean shouldSprinkle(int current_sat) {
+        float monthsSprinkle = 15 * 30;  // 0.5 is the expected value of the growth and we grow 30 times a month.
+        float targetSprinkle = baseSprinkle + current_sat * current_sat / 50.0; // monthsSprinkle * (current_sat / maxSat);
+        if(targetSprinkle == 0) {
+            return false;
+        } else if(targetSprinkle == monthsSprinkle) {
+            return true;
+        } else if(targetSprinkle < monthsSprinkle) {
+            return random(0, 1000) < 1000/(monthsSprinkle/targetSprinkle);
         } else {
             // in any other case we'd need to sample more often,
             // and cannot achieve the target average Growth by 
