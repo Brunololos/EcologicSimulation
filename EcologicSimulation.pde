@@ -4,7 +4,12 @@ boolean pause = false;
 boolean render = true;
 boolean uncappedFrameRate = false;
 
+// Debug Settings
+boolean show_perception_indicators = true;
 boolean tierinfo_display_activations = true; // true: display activations, false: display weights
+
+PrintWriter data_logger;
+boolean do_logging = false;
 
 char last_key = 'µ';
 
@@ -64,15 +69,15 @@ void keyPressed() {
       I.P.TLY0 = constrain(I.P.TLY0-1*I.P.Z,0,I.P.W.Aw*I.P.Z-height);
     }
 
-    if(key == 'q' && I.P.Z < 40) {                                        //reinzoomen
-      I.P.Z = constrain(I.P.Z+1,ceil(width/I.P.W.Aw),40);
+    if(key == 'q' && I.P.Z < 160) {                                        //reinzoomen
+      I.P.Z = constrain(I.P.Z+1,ceil(width/I.P.W.Aw),160);
       I.P.TLX = map(I.P.TLX, 0,I.P.W.Aw*(I.P.Z-1), 0,I.P.W.Aw*I.P.Z);
       I.P.TLY = map(I.P.TLY, 0,I.P.W.Aw*(I.P.Z-1), 0,I.P.W.Aw*I.P.Z);
       I.P.TLX0 = constrain(I.P.TLX-width/2,0,I.P.W.Aw*I.P.Z-width);
       I.P.TLY0 = constrain(I.P.TLY-height/2,0,I.P.W.Aw*I.P.Z-height);
 
     } else if(key == 'e' && I.P.Z > ceil(float(width)/float(I.P.W.Aw))) {                //herauszoomen
-      I.P.Z = constrain(I.P.Z-1,ceil(float(width)/float(I.P.W.Aw)),40);                                                                                                                                                                                                              //solved
+      I.P.Z = constrain(I.P.Z-1,ceil(float(width)/float(I.P.W.Aw)),160);                                                                                                                                                                                                              //solved
       I.P.TLX = constrain(map(I.P.TLX, 0,I.P.W.Aw*(I.P.Z+1), 0,I.P.W.Aw*I.P.Z),     width/2,I.P.W.Aw*I.P.Z-width/2);
       I.P.TLY = constrain(map(I.P.TLY, 0,I.P.W.Aw*(I.P.Z+1), 0,I.P.W.Aw*I.P.Z),     height/2,I.P.W.Aw*I.P.Z-height/2);
       I.P.TLX0 = constrain(I.P.TLX-width/2,0,I.P.W.Aw*I.P.Z-width);
@@ -95,7 +100,11 @@ void keyPressed() {
       }
       uncappedFrameRate = !uncappedFrameRate;
     }
-    
+
+    if(key == 'v'){
+      show_perception_indicators = !show_perception_indicators;
+    }
+
     if(key == 'ä'){
       tierinfo_display_activations = !tierinfo_display_activations;
     }
@@ -110,6 +119,12 @@ void keyPressed() {
 
     if(key == 'r'){
       I.P.T.spawn(I.P.Awdec * I.P.Awdec / 5);
+    }
+
+    if(key == 'l'){
+      if (!do_logging) { data_logger = openDataLog("performance"); }
+      if (do_logging) { closeDataLog(data_logger); }
+      do_logging = !do_logging;
     }
   } else if(I.screen == 1) {
 

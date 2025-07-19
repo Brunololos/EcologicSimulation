@@ -1,5 +1,6 @@
 # ignore build
 windows-amd64
 config/world_gen.txt
+logs/*
 
 *.autosave
