@@ -195,8 +195,12 @@ class Tier {
     }
   }
 
-  void display() {
+  // return number of displayed primitives
+  int display() {
+    if (pos.x*I.P.Z < I.P.TLX0 || pos.x*I.P.Z > I.P.TLX0 + width
+    && pos.y*I.P.Z < I.P.TLY0 || pos.y*I.P.Z > I.P.TLY0 + height) { return 0; }
     B.display(pos, rot, isSelected);
+    return 1;
   }
 
   // Node activation function

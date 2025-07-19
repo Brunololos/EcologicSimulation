@@ -36,8 +36,10 @@ class Tiere {
     }
   }
 
-  void display() {
-    for(Tier T : tiere) { T.display(); }
+  int display() {
+    int display_count = 0;
+    for(Tier T : tiere) { display_count += T.display(); }
+    return display_count;
   }
 
   void cleanup() {

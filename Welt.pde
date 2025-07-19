@@ -2,7 +2,9 @@ class Welt {
   int Aw;                  //Breite der Welt
   int[][] Welt;            //Die Welt als Liste ausgedrückt
   int[][] heightMap;       //Die Höhenniveaus der Welt
-  int[][] satMap;          //Das Nahrungsaufgebot verschiedener Punkte
+  int[][] satMap_odd;      //Das Nahrungsaufgebot verschiedener Punkte
+  int[][] satMap_even;     //Das Nahrungsaufgebot verschiedener Punkte
+  boolean odd_sat = false; //Which satMap is used this simulation step
   float f;                 //Wert für die Frequenz/Schrittweite der noise Funktion
   float e;                 //Wert des Exponenten
   int nL;                  //noiseLayers
@@ -27,7 +29,9 @@ class Welt {
 
     Welt = new int[Aw][Aw];
     heightMap = new int[Aw][Aw];
-    satMap = new int[Aw][Aw];
+    satMap_odd = new int[Aw][Aw];
+    satMap_even = new int[Aw][Aw];
+    odd_sat = false;
     f = f_;
     e = e_;
     for(int i=0; i<Aw; i++){
@@ -35,13 +39,15 @@ class Welt {
         heightMap[i][j] = round(pow(constrain(noise((i+xo)*f, (j+yo)*f), 0, 1), e)*1000);
 
         if(heightMap[i][j] <= B.get(0).upperElevationBorder){                                                                 //tiefes Wasser
-          Welt[i][j] = 1;
-          satMap[i][j] = B.get(0).calculateInitalSaturation();
+          Welt[i][j] = 1; int init_sat = B.get(0).calculateInitialSaturation();
+          satMap_odd[i][j] = init_sat;
+          satMap_even[i][j] = init_sat;
         } else {
           for(int k=1; k<B.count(); k++){
             if(heightMap[i][j] > B.get(k-1).upperElevationBorder && heightMap[i][j] <= B.get(k).upperElevationBorder) {            //Middle layers
-              Welt[i][j] = k+1;
-              satMap[i][j] = B.get(k).calculateInitalSaturation();
+              Welt[i][j] = k+1; int init_sat = B.get(k).calculateInitialSaturation();
+              satMap_odd[i][j] = init_sat;
+              satMap_even[i][j] = init_sat;
               break;
             }
           }
@@ -55,19 +61,23 @@ class Welt {
     noiseDetail(nL,falloff);
     Welt = new int[Aw][Aw];
     heightMap = new int[Aw][Aw];
-    satMap = new int[Aw][Aw];
+    satMap_odd = new int[Aw][Aw];
+    satMap_even = new int[Aw][Aw];
+    odd_sat = false;
     for(int i=0; i<Aw; i++){
       for(int j=0; j<Aw; j++){
         heightMap[i][j] = round(pow(constrain(noise((i+xo)*f, (j+yo)*f), 0, 1), e)*1000);
 
         if(heightMap[i][j] <= B.get(0).upperElevationBorder){                                                                 //tiefes Wasser
-          Welt[i][j] = 1;
-          satMap[i][j] = B.get(0).calculateInitalSaturation();
+          Welt[i][j] = 1; int init_sat = B.get(0).calculateInitialSaturation();
+          satMap_odd[i][j] = init_sat;
+          satMap_even[i][j] = init_sat;
         } else {
           for(int k=1; k<B.count(); k++){
             if(heightMap[i][j] > B.get(k-1).upperElevationBorder && heightMap[i][j] <= B.get(k).upperElevationBorder) {            //Middle layers
-              Welt[i][j] = k+1;
-              satMap[i][j] = B.get(k).calculateInitalSaturation();
+              Welt[i][j] = k+1; int init_sat = B.get(k).calculateInitialSaturation();
+              satMap_odd[i][j] = init_sat;
+              satMap_even[i][j] = init_sat;
               break;
             }
           }
@@ -83,28 +93,105 @@ class Welt {
   }
 
   int getsat(int i, int j) {
-    return satMap[i][j];
+    if (odd_sat) {
+      return satMap_odd[i][j];
+    } else {
+      return satMap_even[i][j];
+    }
+  }
+
+  int addsat(int i, int j, int amount) {
+    int sat;
+    if (odd_sat) {
+      sat = satMap_odd[i][j];
+      satMap_odd[i][j] = constrain(sat + amount,0,25);
+    } else {
+      sat = satMap_even[i][j];
+      satMap_even[i][j] = constrain(sat + amount,0,25);
+    }
+    return min(B.get(Welt[i][j]-1).maxSat - sat, amount);
   }
 
   int remsat(int i, int j, int amount) {
-    int sat = satMap[i][j];
-    satMap[i][j] = constrain(sat - amount,0,25);
+    int sat;
+    if (odd_sat) {
+      sat = satMap_odd[i][j];
+      satMap_odd[i][j] = constrain(sat - amount,0,25);
+    } else {
+      sat = satMap_even[i][j];
+      satMap_even[i][j] = constrain(sat - amount,0,25);
+    }
     return min(sat, amount);
   }
 
+  // TODO: Use different function than shoudlGrow hack? to decide, whether to add sat to tiles
+  // that are supposed or not supposed to gain it. E.g. not mountains, sand & water
+  // distribute saturation to neighbors
+  int sprinklesat(int i, int j, int amount) {
+    int remaining = amount;
+    for(int n=0; remaining > 0 && n<5; n++) {
+      int neighbor = floor(random(1, 4.999));
+      int k;
+      switch(neighbor) {
+        default:
+        case 1:
+          if (i-1 < 0) { break; }
+          k = Welt[i-1][j];
+          if(B.get(k-1).shouldGrow())  { remaining -= addsat(i-1, j, remaining); }
+          break;
+        case 2:
+          if (j-1 < 0) { break; }
+          k = Welt[i][j-1];
+          if(B.get(k-1).shouldGrow())  { remaining -= addsat(i, j-1, remaining); }
+          break;
+        case 3:
+          if (i+1 >= Aw) { break; }
+          k = Welt[i+1][j];
+          if(B.get(k-1).shouldGrow()) { remaining -= addsat(i+1, j, remaining); }
+          break;
+        case 4:
+          if (j+1 >= Aw) { break; }
+          k = Welt[i][j+1];
+          if(B.get(k-1).shouldGrow()) { remaining -= addsat(i, j+1, remaining); }
+          break;
+      }
+    }
+    return remaining;
+  }
+
   void update() {                                                             //vermutlich besser und performanter update nicht jedes Frame aufzurufen
+    odd_sat = !odd_sat;
     for(int i=0; i<Aw; i++){
-        for(int j=0; j<Aw; j++){
+      for(int j=0; j<Aw; j++){
           for(int k=1; k<B.count()+2; k++){
             if(Welt[i][j] == k){                    //tiefes Wasser
               Biome biome = B.get(k-1);        // TODO: better not identify the biomes by order in ArrayList
               if(biome.shouldGrow()){
-                satMap[i][j] = constrain(satMap[i][j] + biome.calculateGrowth(),0,biome.maxSat);
+                int growth = biome.calculateGrowth();
+                int prev_sat;
+                if (odd_sat) {
+                  prev_sat = satMap_odd[i][j];
+                  satMap_odd[i][j] = constrain(satMap_even[i][j] + growth,0,biome.maxSat);
+                } else {
+                  prev_sat = satMap_even[i][j];
+                  satMap_even[i][j] = constrain(satMap_odd[i][j] + growth,0,biome.maxSat);
+                }
+                // if (prev_sat + growth > biome.maxSat) {
+                //   sprinklesat(i, j, prev_sat + growth - biome.maxSat);
+                // }
+                if (biome.shouldSprinkle(min(prev_sat + growth, biome.maxSat))) { sprinklesat(i, j, biome.calculateSprinkle()); }
+                // sprinklesat(i, j, biome.calculateSprinkle());
+              } else {
+                if (odd_sat) {
+                  satMap_odd[i][j] = satMap_even[i][j];
+                } else {
+                  satMap_even[i][j] = satMap_odd[i][j];
+                }
               }
             }
           }
-        }
       }
+    }
   }
 
   void display() {
@@ -114,15 +201,15 @@ class Welt {
       for(int j=floor(I.P.TLY0/I.P.Z); j<ceil((I.P.TLY0+height)/I.P.Z) && j < Aw; j++){
           for(int k=1; k<B.count()+2; k++){
             if(Welt[i][j] == k+1) {
-              int lightnessOffset = satMap[i][j] & 0xFF;
+              int lightnessOffset = getsat(i, j) & 0xFF;
               int baseColor = B.get(k).c;
               fill(color(hue(baseColor), saturation(baseColor), brightness(baseColor) + lightnessOffset));
               rectangle(i, j);
               break;
             }
           }
-        }
       }
+    }
   }
 
   void rectangle(int i, int j) {

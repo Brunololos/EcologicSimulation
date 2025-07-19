@@ -62,9 +62,10 @@ class Programm extends Screen {
   void display() {
 
     // TODO: this decoupling of render, pause could be done cleaner
+    int tiere_displayed = 0;
     if(render) { W.display(); }
     if(!pause) { T.update(); }
-    if(render) { T.display(); }
+    if(render) { tiere_displayed += T.display(); }
     if(!pause) { T.cleanup(); }
 
     stroke(0);
@@ -104,6 +105,12 @@ class Programm extends Screen {
       textAlign(CENTER, CENTER);
       text("~pausiert~", TLX, TLY+height/2-40);
     }
+    // TODO:
+    int x_rend_tiles = min(ceil((I.P.TLX0+width)/I.P.Z), I.P.W.Aw) - floor(I.P.TLX0/I.P.Z);
+    int y_rend_tiles = min(ceil((I.P.TLY0+height)/I.P.Z), I.P.W.Aw) - floor(I.P.TLY0/I.P.Z);
+
+    // TODO: remove/refactor later
+    if(!pause && do_logging && frameCount % 25 == 0) { logData(data_logger, frameRate, I.P.T.tiere.size(), I.P.W.Aw * I.P.W.Aw, tiere_displayed, x_rend_tiles * y_rend_tiles); }
   }
 
 

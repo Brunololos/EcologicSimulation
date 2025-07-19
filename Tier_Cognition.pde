@@ -16,8 +16,6 @@ class Tier_Cognition {
   float[] Action;
 
   Tier_Cognition(Tier_Body B) {
-    // perceptions = B.get_perceptions();
-    // actions = B.get_actions();
     perception_to_idx = build_perception_to_idx_mapping(B);
     action_to_idx = build_action_to_idx_mapping(B);
     // TODO: this needs to be sorted according to the indices, but isn't
@@ -59,7 +57,6 @@ class Tier_Cognition {
         hidden_layer_dims[i+1] = random_layer_width;
       }
       // last hidden layer -> output weights
-      // weights.add(new float[weights.get(weights.size()-1).length * actions.length]);
       weights.add(new float[random_layer_width * actions.length]);
     }
 
@@ -199,10 +196,8 @@ class Tier_Cognition {
   public int aidx(String string) { return action_to_idx.get(string); }
   public float geta(String action) { if (hasa(action)) { return Action[aidx(action)]; } else { return 0; } }
 
-  // TODO: create mapping from perception/actions names to matrix weight coordinates
-  // I want to be able to get the index from the perception/action name
-  // I want to collect all perception/actions names and order them accordingly i.e. first sight-perception, then standon perception, then health perception, then heartbeat, then constant input
-
+  // create mapping from perceptions/actions names to matrix weight coordinates
+  // This is to be able to get the index from the perception/action name (Other modules need to insert/extract values from Action, Perception)
   IntDict build_perception_to_idx_mapping(Tier_Body B)
   {
     IntDict perception_to_idx_ = new IntDict();
